@@ -1,24 +1,32 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-plugins {
-    kotlin("jvm") version "1.6.20"
+buildscript {
+    repositories {
+        mavenCentral()
+    }
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+plugins {
+    kotlin("jvm") version "1.6.20" apply true
+    id("test-report-aggregation") apply true
+}
 
-repositories {
-    mavenCentral()
+allprojects {
+    group = "com.github.furrhatted"
+    version = "1.0-SNAPSHOT"
+
+    tasks.withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "16"
+    }
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+    }
+
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    implementation(project(":ui"))
 }
