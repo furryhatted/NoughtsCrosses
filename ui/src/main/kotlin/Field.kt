@@ -1,7 +1,9 @@
 import java.awt.Color.BLACK
 import java.awt.Color.WHITE
+import java.awt.Graphics
 import java.awt.Image.SCALE_SMOOTH
 import java.awt.Point
+import java.awt.event.ActionListener
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.JButton
@@ -9,22 +11,21 @@ import javax.swing.border.LineBorder
 
 class Field(
     val position: Point,
-    var state: Int = -1 //Use this to check if field already tagged by player
+    listener: ActionListener
 ) : JButton() {
+    var state: String? = null //Use this to check if field already tagged by player
+
     init {
         this.background = WHITE
         this.foreground = BLACK
         this.border = LineBorder(BLACK, 2)
-        //TODO: Replace with proper onClick listener
-        this.addActionListener {
-            state = (state + 1) % 2
-            val resource = when (state) {
-                0 -> MainFrame::class.java.getResource("x.png")
-                1 -> MainFrame::class.java.getResource("o.png")
-                else -> throw IllegalArgumentException("Unknown field state: $state")
-            }
-            val image = ImageIO.read(resource)
-            this.icon = ImageIcon(image.getScaledInstance(this.width, this.height, SCALE_SMOOTH))
-        }
+        this.addActionListener(listener)
+    }
+
+    override fun paintComponent(g: Graphics?) {
+        this.icon = state?.let { MainFrame::class.java.getResource("$it.png") }
+            ?.let { ImageIO.read(it) }
+            ?.let { ImageIcon(it.getScaledInstance(this.width, this.height, SCALE_SMOOTH)) }
+        super.paintComponent(g)
     }
 }

@@ -7,16 +7,17 @@ import javax.swing.JPanel
 class Board(
     pixels: Dimension? = null,
     fields: Dimension = Dimension(3, 3)
-) : JPanel(true) {
+) : JPanel(GridLayout(fields.width, fields.height), true) {
+    private val moveListener = MoveListener(listOf("X", "O"))
 
     init {
-        this.layout = GridLayout(fields.width, fields.height)
+        //this.layout =
         this.preferredSize = pixels
         this.background = BLACK
 
         repeat(fields.height) { x ->
             repeat(fields.width) { y ->
-                this.add(Field(Point(x, y)))
+                this.add(Field(Point(x, y), moveListener))
             }
         }
     }
