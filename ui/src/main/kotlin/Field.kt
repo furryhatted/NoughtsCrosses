@@ -6,7 +6,6 @@ import javax.imageio.ImageIO
 import javax.swing.ImageIcon
 import javax.swing.JButton
 import javax.swing.border.LineBorder
-import kotlin.random.Random
 
 class Field(
     val position: Point,
@@ -18,7 +17,13 @@ class Field(
         this.border = LineBorder(BLACK, 2)
         //TODO: Replace with proper onClick listener
         this.addActionListener {
-            val image = ImageIO.read({}::class.java.getResource(if (Random.nextBoolean()) "x.png" else "o.png"))
+            state = (state + 1) % 2
+            val resource = when (state) {
+                0 -> MainFrame::class.java.getResource("x.png")
+                1 -> MainFrame::class.java.getResource("o.png")
+                else -> throw IllegalArgumentException("Unknown field state: $state")
+            }
+            val image = ImageIO.read(resource)
             this.icon = ImageIcon(image.getScaledInstance(this.width, this.height, SCALE_SMOOTH))
         }
     }
