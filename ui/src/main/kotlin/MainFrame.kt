@@ -1,5 +1,12 @@
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.awt.*
 import java.awt.GridBagConstraints.*
+import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.SwingConstants
@@ -48,9 +55,19 @@ class MainFrame(
         this.isVisible = true
     }
 
-    fun drawBoard(players: Int = 2, dimension: Dimension = Dimension(3, 3)) {
-        this.add(Board(players, dimension), boardConstraints)
+    fun createGame(players: Int = 2, dimension: Dimension = Dimension(3, 3)) {
+        val game = Game(players, dimension)
+        this.add(game.board, boardConstraints)
         this.isVisible = true
+        runBlocking {
+            val job = CoroutineScope(Dispatchers.Default).launch { game.run() }
+            job.join()
+            this@MainFrame.dispatchEvent(WindowEvent(this@MainFrame, WindowEvent.WINDOW_CLOSING))
+        }
+
     }
 
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(MainFrame::class.java)
+    }
 }

@@ -2,5 +2,5 @@ import java.awt.Dimension
 
 fun main() {
     val frame = MainFrame()
-    frame.drawBoard(dimension = Dimension(5, 5))
+    frame.createGame(dimension = Dimension(3, 3))
 }
