@@ -1,48 +1,55 @@
 import java.awt.*
-import java.awt.GridBagConstraints.BOTH
-import java.awt.GridBagConstraints.CENTER
+import java.awt.GridBagConstraints.*
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.SwingConstants
 
 
 class MainFrame(
-    pixels: Dimension = Dimension(800, 800),
-    fields: Dimension = Dimension(3, 3),
+    width: Int = 600,
+    height: Int = 600,
     title: String? = "Main Frame"
 ) : JFrame(title) {
+    private val boardConstraints = GridBagConstraints().apply {
+        this.anchor = SOUTH
+        this.gridx = 0
+        this.gridy = 1
+        this.gridwidth = 3
+        this.gridheight = 3
+        this.weightx = 0.9
+        this.weighty = 0.9
+        this.insets = Insets(10, 10, 10, 10)
+    }
 
     init {
+
         this.layout = GridBagLayout()
-        this.minimumSize = Dimension(1100, 1100)
-
-        val boardConstraints = GridBagConstraints().apply {
-            this.anchor = CENTER
-            this.fill = BOTH
-            this.gridx = 1
-            this.gridy = 1
-            this.gridwidth = 8
-            this.gridheight = 8
-        }
-        this.add(Board(pixels, fields), boardConstraints)
-
+        this.size = Dimension(width, height)
         val labelConstraints = GridBagConstraints().apply {
             this.anchor = CENTER
             this.fill = BOTH
             this.gridx = 0
             this.gridy = 0
-            this.gridwidth = 10
+            this.gridwidth = 3
             this.gridheight = 1
+            this.weightx = 0.1
+            this.weighty = 0.1
+            this.insets = Insets(10, 10, 0, 10)
         }
         val moveLabel = JLabel().apply {
             this.text = "Current move"
             this.font = Font("Comic Sans MS", Font.BOLD, 22)
             this.horizontalAlignment = SwingConstants.CENTER
+
         }
 
         this.add(moveLabel, labelConstraints)
         this.defaultCloseOperation = EXIT_ON_CLOSE
-        this.background = Color.BLACK
+        this.isVisible = true
+    }
+
+    fun drawBoard(players: Int = 2, dimension: Dimension = Dimension(3, 3)) {
+        this.add(Board(players, dimension), boardConstraints)
         this.isVisible = true
     }
 
