@@ -20,18 +20,25 @@ class Game(
 
     val board: Board = Board(dimension, inputListener)
 
+    private var winner: Int = -1
+
     private val byRow: List<List<Int>> = board.components.indices.chunked(dimension.width)
 
     private val byColumn: List<List<Int>> = board.components.indices.groupBy { it % dimension.width }.map { it.value }
 
+    private val byDiag: List<List<Int>> = listOf(byRow.mapIndexed { index, ints -> ints[index] },
+        byRow.mapIndexed { index, ints -> ints[dimension.width - index - 1] })
+
+    private fun isWinner(player: Int): Boolean =
+        byRow.any { it.count { i -> (board.components[i] as Field).state == player } == dimension.width } ||
+                byColumn.any { it.count { i -> (board.components[i] as Field).state == player } == dimension.width } ||
+                byDiag.any { it.count { i -> (board.components[i] as Field).state == player } == dimension.width }
+
+
     val isFinished: Boolean
         get() = board.components.none { (it as Field).state == -1 } ||
-                byRow.any { row -> row.count { (board.components[it] as Field).state == 0 } == dimension.width } ||
-                byRow.any { row -> row.count { (board.components[it] as Field).state == 1 } == dimension.width } ||
-                byColumn.any { col -> col.count { (board.components[it] as Field).state == 0 } == dimension.width } ||
-                byColumn.any { col -> col.count { (board.components[it] as Field).state == 1 } == dimension.width }
-
-    //arrayListOf(false, false, false).reduce { result, bool -> result || bool }
+                (0 until players).map { isWinner(it).apply { if (this) winner = it } }
+                    .reduce { result, bool -> result || bool }
 
     private var turn = -1
         set(value) {
@@ -51,7 +58,7 @@ class Game(
     suspend fun run() = coroutineScope {
         while (!isFinished)
             board.updateState(mailbox.receive(), ++turn)
-        JOptionPane.showMessageDialog(null, "Eggs are not supposed to be green.")
+        JOptionPane.showMessageDialog(board, "Eggs are not supposed to be green... \n Well... khm... Player $winner won...")
         board.isVisible = false
     }
 
