@@ -1,6 +1,5 @@
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.RENDEZVOUS
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,10 +14,11 @@ class Game(
     private val mailbox: Channel<Int> = Channel(RENDEZVOUS)
 
     private val inputListener = ActionListener {
-        runBlocking { mailbox.send((it.source as Field).id) }
+        if ((it.source as FieldButton).state != -1) return@ActionListener
+        runBlocking { mailbox.send((it.source as FieldButton).id) }
     }
 
-    val board: Board = Board(dimension, inputListener)
+    val board: BoardPanel = BoardPanel(dimension, inputListener)
 
     private var winner: Int = -1
 
@@ -30,13 +30,13 @@ class Game(
         byRow.mapIndexed { index, ints -> ints[dimension.width - index - 1] })
 
     private fun isWinner(player: Int): Boolean =
-        byRow.any { it.count { i -> (board.components[i] as Field).state == player } == dimension.width } ||
-                byColumn.any { it.count { i -> (board.components[i] as Field).state == player } == dimension.width } ||
-                byDiag.any { it.count { i -> (board.components[i] as Field).state == player } == dimension.width }
+        byRow.any { it.count { i -> (board.components[i] as FieldButton).state == player } == dimension.width } ||
+                byColumn.any { it.count { i -> (board.components[i] as FieldButton).state == player } == dimension.width } ||
+                byDiag.any { it.count { i -> (board.components[i] as FieldButton).state == player } == dimension.width }
 
 
-    val isFinished: Boolean
-        get() = board.components.none { (it as Field).state == -1 } ||
+    private val isFinished: Boolean
+        get() = board.components.none { (it as FieldButton).state == -1 } ||
                 (0 until players).map { isWinner(it).apply { if (this) winner = it } }
                     .reduce { result, bool -> result || bool }
 
@@ -45,20 +45,9 @@ class Game(
             field = value % players
         }
 
-
-    fun playerMove(field: Int) {
-        board.updateState(field, ++turn)
-
-
-        //FIXME: remove this line!!! This just tags "O" random field after "X" move
-        if (turn == 0) (board.components.filter { (it as Field).state == -1 }
-            .random() as Field).doClick()
-    }
-
-    suspend fun run() = coroutineScope {
-        while (!isFinished)
-            board.updateState(mailbox.receive(), ++turn)
-        JOptionPane.showMessageDialog(board, "Eggs are not supposed to be green... \n Well... khm... Player $winner won...")
+    suspend fun run() {
+        while (!isFinished) board.setState(mailbox.receive(), ++turn)
+        JOptionPane.showMessageDialog(board, "Player $winner won...")
         board.isVisible = false
     }
 

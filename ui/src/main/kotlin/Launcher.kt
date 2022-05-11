@@ -1,6 +1,7 @@
-import java.awt.Dimension
+import kotlinx.coroutines.runBlocking
 
-fun main() {
+fun main() = runBlocking {
     val frame = MainFrame()
-    frame.createGame(dimension = Dimension(5, 5))
+    while (true)
+        frame.newGame()
 }

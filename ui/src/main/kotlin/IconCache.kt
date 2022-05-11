@@ -14,7 +14,7 @@ object IconCache {
     var sideScale: Int = 200
 
     init {
-        val imageFolder = File(MainFrame::class.java.getResource("images")?.toURI() ?: throw FileNotFoundException())
+        val imageFolder = File(MainFrame::class.java.getResource("images/tags")?.toURI() ?: throw FileNotFoundException())
         imageFolder
             .walkTopDown()
             .filter { it.isFile }

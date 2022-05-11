@@ -7,15 +7,15 @@ import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import javax.swing.JPanel
 
-class Board(
+class BoardPanel(
     val dimension: Dimension,
     listener: ActionListener? = null
 ) : JPanel(GridLayout(dimension.width, dimension.height), true) {
-    //TODO: Add global constant for initial field state
-
 
     init {
-        repeat(dimension.width * dimension.height) { this.add(Field(it, listener)) }
+        repeat(dimension.width * dimension.height) {
+            this.add(FieldButton(it, listener))
+        }
         this.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent) {
                 IconCache.sideScale =
@@ -25,14 +25,11 @@ class Board(
         })
     }
 
-    internal fun updateState(index: Int, state: Int) {
-        with(components[index] as Field) {
-            this.actionListeners.forEach { this.removeActionListener(it) }
-            this.state = state
-        }
+    internal fun setState(index: Int, state: Int) {
+        (this.components[index] as FieldButton).state = state
     }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(Board::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(BoardPanel::class.java)
     }
 }
